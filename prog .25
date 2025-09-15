@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main() {
+    int fd = open("demo.txt", O_RDONLY);
+    if (fd < 0) { perror("open"); exit(1); }
+
+    
+    int newfd = fcntl(fd, F_DUPFD, 0);
+    printf("Duplicated file descriptor: %d\n", newfd);
+
+    
+    off_t pos = lseek(fd, 0, SEEK_END);
+    printf("File size using lseek: %ld bytes\n", (long)pos);
+
+
+    struct stat st;
+    stat("demo.txt", &st);
+    printf("File size using stat: %ld bytes\n", (long)st.st_size);
+
+    close(fd);
+
+    
+    DIR *dir = opendir(".");
+    struct dirent *entry;
+    printf("Files in current directory:\n");
+    while ((entry = readdir(dir)) != NULL) {
+        printf("  %s\n", entry->d_name);
+    }
+    closedir(dir);
+
+    return 0;
+}
+output : 
+Duplicated file descriptor: 3
+File size using lseek: 38 bytes
+File size using stat: 38 bytes
+Files in current directory:
+  .
+  ..
+  demo.txt
+  a.out
+  program.c
