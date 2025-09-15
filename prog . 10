@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/types.h>
+
+
+struct msg_buffer {
+    long msg_type;
+    char msg_text[100];
+};
+
+int main() {
+    key_t key;
+    int msgid;
+
+
+    key = ftok("progfile", 65);
+
+
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    if (msgid == -1) {
+        perror("msgget");
+        exit(1);
+    }
+
+    struct msg_buffer message;
+
+    if (fork() == 0) {
+        // Child process -> Sender
+        message.msg_type = 1;
+        strcpy(message.msg_text, "Hello from Message Queue IPC!");
+        if (msgsnd(msgid, &message, sizeof(message.msg_text), 0) == -1) {
+            perror("msgsnd");
+            exit(1);
+        }
+        printf("Sender: Message sent.\n");
+    } else {
+        
+        sleep(1); // ensure sender sends first
+        if (msgrcv(msgid, &message, sizeof(message.msg_text), 1, 0) == -1) {
+            perror("msgrcv");
+            exit(1);
+        }
+        printf("Receiver: Message received: %s\n", message.msg_text);
+
+        
+        msgctl(msgid, IPC_RMID, NULL);
+    }
+
+    return 0;
+} 
+
+
+output : 
+Parent Process:
+   PID  = 3456
+   PPID = 1234
+
+Child Process:
+   PID  = 3457
+   PPID = 3456
+
