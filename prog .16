@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FILENAME "employees.dat"
+#define NAME_LEN 30
+
+typedef struct {
+    int id;
+    char name[NAME_LEN];
+    double salary;
+} Employee;
+
+void add_employee(FILE *fp, Employee e) {
+    fseek(fp, 0, SEEK_END);
+    fwrite(&e, sizeof(Employee), 1, fp);
+}
+
+long count_records(FILE *fp) {
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    return size / sizeof(Employee);
+}
+
+int read_employee(FILE *fp, long index, Employee *e) {
+    fseek(fp, index * sizeof(Employee), SEEK_SET);
+    return fread(e, sizeof(Employee), 1, fp) == 1 ? 0 : -1;
+}
+
+int update_employee(FILE *fp, long index, Employee *e) {
+    fseek(fp, index * sizeof(Employee), SEEK_SET);
+    return fwrite(e, sizeof(Employee), 1, fp) == 1 ? 0 : -1;
+}
+
+int main() {
+    FILE *fp = fopen(FILENAME, "r+b");
+    if (!fp) fp = fopen(FILENAME, "w+b");
+    if (!fp) { perror("fopen"); exit(1); }
+
+    if (count_records(fp) == 0) {
+        Employee e1 = {1, "Alice", 50000.0};
+        Employee e2 = {2, "Bob", 60000.0};
+        Employee e3 = {3, "Charlie", 55000.0};
+        add_employee(fp, e1);
+        add_employee(fp, e2);
+        add_employee(fp, e3);
+    }
+
+    printf("Total records: %ld\n", count_records(fp));
+
+    Employee e;
+    read_employee(fp, 1, &e);
+    printf("Record[1] -> ID:%d Name:%s Salary:%.2f\n", e.id, e.name, e.salary);
+
+    read_employee(fp, 2, &e);
+    printf("Before Update Record[2] -> ID:%d Name:%s Salary:%.2f\n", e.id, e.name, e.salary);
+    e.salary = 58000.0;
+    update_employee(fp, 2, &e);
+
+    read_employee(fp, 2, &e);
+    printf("After Update Record[2] -> ID:%d Name:%s Salary:%.2f\n", e.id, e.name, e.salary);
+
+    fclose(fp);
+    return 0;
+}
+output : 
+Total records: 3
+Record[1] -> ID:2 Name:Bob Salary:60000.00
+Before Update Record[2] -> ID:3 Name:Charlie Salary:55000.00
+After Update Record[2] -> ID:3 Name:Charlie Salary:58000.00
