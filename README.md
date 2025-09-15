@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>     // for open()
+#include <unistd.h>    // for read(), write(), close()
+
+#define BUF_SIZE 1024
+
+int main(int argc, char *argv[]) {
+    int source_fd, dest_fd;   // file descriptors
+    char buffer[BUF_SIZE];
+    ssize_t bytesRead;
+
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <source_file> <destination_file>\n", argv[0]);
+        exit(1);
+    }
+
+    // Open source file for reading
+    source_fd = open(argv[1], O_RDONLY);
+    if (source_fd < 0) {
+        perror("Error opening source file");
+        exit(1);
+    }
+
+    // Open/create destination file for writing
+    dest_fd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (dest_fd < 0) {
+        perror("Error opening/creating destination file");
+        close(source_fd);
+        exit(1);
+    }
+
+    // Read from source and write to destination
+    while ((bytesRead = read(source_fd, buffer, BUF_SIZE)) > 0) {
+        if (write(dest_fd, buffer, bytesRead) != bytesRead) {
+            perror("Error writing to destination file");
+            close(source_fd);
+            close(dest_fd);
+            exit(1);
+        }
+    }
+
+    if (bytesRead < 0) {
+        perror("Error reading source file");
+    }
+
+    // Close files
+    close(source_fd);
+    close(dest_fd);
+
+    printf("File copied successfully!\n");
+    return 0;
+}
+
+output : 
+gcc copy.c -o copy
+./copy source.txt destination.txt
