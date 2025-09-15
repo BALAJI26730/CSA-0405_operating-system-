@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+void* thread_function(void* arg) {
+    char* msg = (char*) arg;
+    for (int i = 0; i < 3; i++) {
+        printf("%s (iteration %d)\n", msg, i+1);
+        sleep(1);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2;
+
+    pthread_create(&t1, NULL, thread_function, "Thread 1 is running");
+    pthread_create(&t2, NULL, thread_function, "Thread 2 is running");
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    printf("Both threads finished execution.\n");
+    return 0;
+}
+output : 
+Thread 1 is running (iteration 1)
+Thread 2 is running (iteration 1)
+Thread 1 is running (iteration 2)
+Thread 2 is running (iteration 2)
+Thread 1 is running (iteration 3)
+Thread 2 is running (iteration 3)
+Both threads finished execution.
