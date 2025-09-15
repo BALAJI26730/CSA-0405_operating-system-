@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <string.h>
+
+struct {
+    char dname[10], fname[10][10];
+    int fcnt;
+}dir;
+
+int main() {
+    dir.fcnt = 0;
+    printf("Enter directory name: ");
+    scanf("%s", dir.dname);
+
+    int choice;
+    do {
+        printf("\n1. Create File\n2. Delete File\n3. List Files\n4. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if (choice == 1) {
+            printf("Enter file name: ");
+            scanf("%s", dir.fname[dir.fcnt]);
+            dir.fcnt++;
+        } else if (choice == 2) {
+            char f[10];
+            printf("Enter file name to delete: ");
+            scanf("%s", f);
+            int found = 0;
+            for (int i = 0; i < dir.fcnt; i++) {
+                if (strcmp(f, dir.fname[i]) == 0) {
+                    found = 1;
+                    strcpy(dir.fname[i], dir.fname[dir.fcnt-1]);
+                    dir.fcnt--;
+                    break;
+                }
+            }
+            if (!found) printf("File not found!\n");
+        } else if (choice == 3) {
+            printf("Directory: %s\n", dir.dname);
+            for (int i = 0; i < dir.fcnt; i++)
+                printf("%s\n", dir.fname[i]);
+        }
+    } while (choice != 4);
+
+    return 0;
+}
+output : 
+Enter directory name: OS
+
+1. Create File
+2. Delete File
+3. List Files
+4. Exit
+Choice: 1
+Enter file name: file1
+
+Choice: 1
+Enter file name: file2
+
+Choice: 3
+Directory: OS
+file1
+file2
+
+Choice: 2
+Enter file name to delete: file1
+
+Choice: 3
+Directory: OS
+file2
