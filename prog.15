@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <string.h>
+
+struct {
+    char dname[10], fname[10][10];
+    int fcnt;
+}dir[10];
+
+int main() {
+    int dcnt = 0, choice;
+    char d[10], f[10];
+
+    do {
+        printf("\n1. Create Directory\n2. Create File\n3. Delete File\n4. List\n5. Exit\nChoice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                printf("Enter directory name: ");
+                scanf("%s", dir[dcnt].dname);
+                dir[dcnt].fcnt = 0;
+                dcnt++;
+                break;
+
+            case 2:
+                printf("Enter directory name: ");
+                scanf("%s", d);
+                for (int i = 0; i < dcnt; i++) {
+                    if (strcmp(d, dir[i].dname) == 0) {
+                        printf("Enter file name: ");
+                        scanf("%s", dir[i].fname[dir[i].fcnt]);
+                        dir[i].fcnt++;
+                        break;
+                    }
+                }
+                break;
+
+            case 3:
+                printf("Enter directory name: ");
+                scanf("%s", d);
+                for (int i = 0; i < dcnt; i++) {
+                    if (strcmp(d, dir[i].dname) == 0) {
+                        printf("Enter file name to delete: ");
+                        scanf("%s", f);
+                        for (int j = 0; j < dir[i].fcnt; j++) {
+                            if (strcmp(f, dir[i].fname[j]) == 0) {
+                                strcpy(dir[i].fname[j], dir[i].fname[dir[i].fcnt-1]);
+                                dir[i].fcnt--;
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 4:
+                for (int i = 0; i < dcnt; i++) {
+                    printf("Directory %s:\n", dir[i].dname);
+                    for (int j = 0; j < dir[i].fcnt; j++)
+                        printf("  %s\n", dir[i].fname[j]);
+                }
+                break;
+        }
+    } while(choice != 5);
+
+    return 0;
+} 
+output : 
+1. Create Directory
+2. Create File
+3. Delete File
+4. List
+5. Exit
+Choice: 1
+Enter directory name: CS
+
+Choice: 1
+Enter directory name: IT
+
+Choice: 2
+Enter directory name: CS
+Enter file name: os.txt
+
+Choice: 2
+Enter directory name: IT
+Enter file name: db.txt
+
+Choice: 4
+Directory CS:
+  os.txt
+Directory IT:
+  db.txt
+
