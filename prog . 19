@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+pthread_mutex_t lock;
+int counter = 0;
+
+void* threadFunc(void* arg) {
+    for (int i = 0; i < 5; i++) {
+        pthread_mutex_lock(&lock);
+        counter++;
+        printf("Thread %ld incremented counter to %d\n",
+               pthread_self(), counter);
+        pthread_mutex_unlock(&lock);
+        sleep(1);
+    }
+    return NULL;
+}
+
+int main() {
+    pthread_t t1, t2;
+
+    pthread_mutex_init(&lock, NULL);
+
+    pthread_create(&t1, NULL, threadFunc, NULL);
+    pthread_create(&t2, NULL, threadFunc, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    pthread_mutex_destroy(&lock);
+
+    printf("Final Counter Value: %d\n", counter);
+    return 0;
+}
+output : 
+Thread 140198614775552 incremented counter to 1
+Thread 140198606382848 incremented counter to 2
+Thread 140198614775552 incremented counter to 3
+Thread 140198606382848 incremented counter to 4
+Thread 140198614775552 incremented counter to 5
+Thread 140198606382848 incremented counter to 6
+Thread 140198614775552 incremented counter to 7
+Thread 140198606382848 incremented counter to 8
+Thread 140198614775552 incremented counter to 9
+Thread 140198606382848 incremented counter to 10
+Final Counter Value: 10
